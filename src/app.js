@@ -10,6 +10,8 @@ const { apiLimiter } = require('./middleware/rateLimit'); // <-- AJOUT
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Sécurité + logs + parsers
 app.use(helmet({
   // Assouplissements utiles en dev (PDF, toasts inline, etc.)
@@ -24,6 +26,11 @@ app.use(morgan('dev'));
 
 // Rate limit global pour l'API (doux, non bloquant dans l'usage normal)
 app.use('/api', apiLimiter);
+
+// Healthcheck + home
+app.get('/', (req, res) => res.send('OK'));
+app.get('/api/health', (req, res) => res.json({ ok: true }));
+
 
 // Routes
 app.use('/api', routes);
