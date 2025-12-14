@@ -9,7 +9,7 @@ function getPool() {
       host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT || 3306),
       user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASS || '',
+      password: process.env.DB_PASSWORD || process.env.DB_PASS || '',
       database: process.env.DB_NAME || 'flexitime',
       waitForConnections: true,
       connectionLimit: 10,
@@ -31,8 +31,19 @@ async function ping() {
 }
 
 async function query(sql, params = []) {
-  const [rows] = await getPool().execute(sql, params);
-  return rows;
+  // Normalisation des params (évite "Incorrect arguments to mysqld_stmt_execute")
+  if (params === undefined || params === null) params = [];
+  if (!Array.isArray(params)) params = [params];
+
+  try {
+    const [rows] = await getPool().execute(sql, params);
+    return rows;
+  } catch (err) {
+    console.error('[DB] SQL:', sql);
+    console.error('[DB] PARAMS:', params);
+    throw err;
+  }
 }
+
 
 module.exports = { getPool, ping, query };
