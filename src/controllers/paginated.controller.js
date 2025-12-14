@@ -156,14 +156,15 @@ async function teams(req, res) {
 }
 
 // GET /paged/dayclose/:id/files
+// GET /paged/dayclose/:id/files
 async function dayCloseFiles(req, res) {
   const { page, limit, offset } = parsePagination(req);
   const closeId = Number(req.params.id);
 
   const totalRows = await db(
     `SELECT COUNT(*) AS n
-       FROM dayclose_files f
-      WHERE f.dayclose_id = ?`,
+       FROM day_close_files f
+      WHERE f.day_close_id = ?`,
     [closeId]
   );
   const total = Number(totalRows?.[0]?.n || 0);
@@ -172,14 +173,14 @@ async function dayCloseFiles(req, res) {
     `
     SELECT
       f.id,
-      f.dayclose_id,
+      f.day_close_id     AS dayclose_id,
       f.filename,
       f.original_name,
-      f.mime_type,
-      f.size_bytes,
+      f.mime             AS mime_type,
+      f.size             AS size_bytes,
       f.created_at
-    FROM dayclose_files f
-    WHERE f.dayclose_id = ?
+    FROM day_close_files f
+    WHERE f.day_close_id = ?
     ORDER BY f.created_at DESC
     LIMIT ? OFFSET ?
   `,
@@ -189,6 +190,8 @@ async function dayCloseFiles(req, res) {
   res.json({ success: true, data: rows, meta: meta(total, page, limit) });
 }
 
+
+// GET /paged/teamclose/:id/files
 // GET /paged/teamclose/:id/files
 async function teamCloseFiles(req, res) {
   const { page, limit, offset } = parsePagination(req);
@@ -196,8 +199,8 @@ async function teamCloseFiles(req, res) {
 
   const totalRows = await db(
     `SELECT COUNT(*) AS n
-       FROM teamclose_files f
-      WHERE f.teamclose_id = ?`,
+       FROM team_close_files f
+      WHERE f.team_close_id = ?`,
     [closeId]
   );
   const total = Number(totalRows?.[0]?.n || 0);
@@ -206,14 +209,14 @@ async function teamCloseFiles(req, res) {
     `
     SELECT
       f.id,
-      f.teamclose_id,
+      f.team_close_id    AS teamclose_id,
       f.filename,
       f.original_name,
-      f.mime_type,
-      f.size_bytes,
+      f.mime             AS mime_type,
+      f.size             AS size_bytes,
       f.created_at
-    FROM teamclose_files f
-    WHERE f.teamclose_id = ?
+    FROM team_close_files f
+    WHERE f.team_close_id = ?
     ORDER BY f.created_at DESC
     LIMIT ? OFFSET ?
   `,
@@ -222,6 +225,7 @@ async function teamCloseFiles(req, res) {
 
   res.json({ success: true, data: rows, meta: meta(total, page, limit) });
 }
+
 
 // GET /paged/team-validations/pending  (ADMIN only)
 async function teamValidationsPending(req, res) {
